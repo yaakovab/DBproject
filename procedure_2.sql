@@ -1,26 +1,26 @@
-create or replace procedure get_max_res_month (monthtosearch in number)as
-ordamount number :=0;
+create or replace procedure get_max_res_month (monthtosearch in number) is
 
-cursor ord_month is 
-         SELECT EXTRACT(month FROM reservation.reservationdate) "Month",
-         COUNT(reservation.reservationdate) "No. of Orders"
-         FROM reservation
-         GROUP BY EXTRACT(month FROM reservation.reservationdate)
-         ORDER BY "No. of Orders" DESC;
 
-         s1 ord_month%rowtype;
+    monthmax number; 
+   resmax number;
+cursor ord_month  is
+select * from(
+        select  EXTRACT(month FROM reservation.reservationdate) as Montht,
+  COUNT(reservation.reservationdate) as No_of_ord
+  FROM reservation
+  GROUP BY EXTRACT(month FROM reservation.reservationdate)
+  ORDER BY No_of_ord DESC) s
+  where s.montht = monthtosearch;
+
 begin
-           open ord_month;
-           loop
-             fetch ord_month into s1;
-             exit when ord_month%notfound;
-             if (s1.month = monthstosearch)
-               then ordamount s1."no. of orders";end if;
-           end loop;  
-           close   ord_month  ;
-           
-           dbms_output.put_line('sum of orders bei made in this month is: '||ordamount );
-           
-           end;
-
-end;
+  open 
+   ord_month;
+   loop
+         
+        FETCH ord_month into monthmax, resmax;
+        EXIT WHEN ord_month%notfound;
+              
+              dbms_output.put_line(resmax||' reservations made in '||monthmax||' the most in this year' );
+           END LOOP; 
+   CLOSE ord_month; 
+END;  
